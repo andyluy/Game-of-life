@@ -83,10 +83,17 @@
     }
   }
 
-  // Função de animação
-  function animate() {
-    grid = update(grid);
-    drawGrid(grid);
+  // Controla o intervalo de tempo entre atualizações para ajustar a velocidade da animação
+  const frameInterval = 25; // em milissegundos (100 ms = 10 vezes por segundo)
+  let lastTime = 0;
+
+  // Função de animação com controle de tempo para desacelerar a atualização
+  function animate(time = 0) {
+    if (time - lastTime > frameInterval) {
+      grid = update(grid);
+      drawGrid(grid);
+      lastTime = time;
+    }
     requestAnimationFrame(animate);
   }
 
