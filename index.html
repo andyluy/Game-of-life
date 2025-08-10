@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Jogo da Vida - Arte Generativa</title>
+<style>
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #222;
+    margin: 0;
+  }
+  canvas {
+    border: 1px solid #ccc;
+    background-color: white;
+  }
+</style>
+</head>
+<body>
+<canvas id="gameOfLife"></canvas>
+
+<script>
+  const n = 50; // tamanho do grid (50x50)
+  const canvas = document.getElementById('gameOfLife');
+  const ctx = canvas.getContext('2d');
+
+  // Definir tamanho do canvas e de cada célula
+  const cellSize = 10;
+  canvas.width = n * cellSize;
+  canvas.height = n * cellSize;
+
+  // Inicializa o grid com valores aleatórios (0 = morto, 1 = vivo)
+  let grid = [];
+  for (let i = 0; i < n; i++) {
+    grid[i] = [];
+    for (let j = 0; j < n; j++) {
+      grid[i][j] = Math.random() < 0.5 ? 0 : 1;
+    }
+  }
+
+  // Calcula o próximo estado do grid
+  function update(grid) {
+    let newGrid = [];
+    for (let i = 0; i < n; i++) {
+      newGrid[i] = [];
+      for (let j = 0; j < n; j++) {
+        // Conta os vizinhos vivos com wrap-around
+        let total = 0;
+        for (let x = -1; x <= 1; x++) {
+          for (let y = -1; y <= 1; y++) {
+            if (x !== 0 || y !== 0) {
+              const ni = (i + x + n) % n;
+              const nj = (j + y + n) % n;
+              total += grid[ni][nj];
+            }
+          }
+        }
+
+        // Aplica as regras do Jogo da Vida
+        if (grid[i][j] === 1 && (total === 2 || total === 3)) {
+          newGrid[i][j] = 1;
+        } else if (grid[i][j] === 0 && total === 3) {
+          newGrid[i][j] = 1;
+        } else {
+          newGrid[i][j] = 0;
+        }
+      }
+    }
+    return newGrid;
+  }
+
+  // Desenha o grid no canvas
+  function drawGrid(grid) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (let i = 0; i < n; i++) {
+      for (let j = 0; j < n; j++) {
+        ctx.fillStyle = grid[i][j] === 1 ? 'black' : 'white';
+        ctx.fillRect(j * cellSize, i * cellSize, cellSize, cellSize);
+      }
+    }
+  }
+
+  // Função de animação
+  function animate() {
+    grid = update(grid);
+    drawGrid(grid);
+    requestAnimationFrame(animate);
+  }
+
+  // Inicializa a animação
+  drawGrid(grid);
+  requestAnimationFrame(animate);
+</script>
+</body>
+</html>
